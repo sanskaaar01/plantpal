@@ -2,7 +2,6 @@
 
 A beautiful, interactive virtual garden management system built with Django and vanilla JavaScript. Grow plants, track their health, earn coins, and compete on leaderboards!
 
-![PlantPal Banner](https://via.placeholder.com/800x200/d1fae5/059669?text=PlantPal+-+Your+Garden+Awaits)
 
 ## ✨ Features
 
