@@ -39,19 +39,6 @@ A beautiful, interactive virtual garden management system built with Django and 
 
 ---
 
-## 🖼️ Screenshots
-
-### Garden View
-![Garden View](https://via.placeholder.com/600x400/a7f3d0/059669?text=Garden+View)
-
-### Dashboard
-![Dashboard](https://via.placeholder.com/600x400/fef3c7/92400e?text=Dashboard)
-
-### Shop
-![Shop](https://via.placeholder.com/600x400/f3e8ff/9333ea?text=Plant+Shop)
-
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -233,7 +220,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Your Name**
 - GitHub: [@sanskaaar01](https://github.com/sanskaaar01)
-- Email: your.email@example.com
+- Email: bhoslesanskar@gmail.com
 
 ---
 
