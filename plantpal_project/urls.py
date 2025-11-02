@@ -14,10 +14,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path, include
+from garden.admin import admin_site  # ✅ Import your custom admin site
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('garden.urls')),  # ADD THIS LINE
+    path('admin/', admin_site.urls),  # ✅ Use custom admin site
+    path('', include('garden.urls')),  # Your app routes
 ]

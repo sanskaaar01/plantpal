@@ -5,4 +5,5 @@ app_name = 'garden'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    
 ]

@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'garden',  # ADD THIS LINE
+    'garden',  # Your custom app
+    'admin_interface',
+    'colorfield',
 ]
 
 MIDDLEWARE = [

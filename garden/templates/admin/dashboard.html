@@ -1,0 +1,6 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h2>🌿 Garden Stats</h2>
+  <p><strong>Total Plants:</strong> {{ total_plants }}</p>
+  <p><strong>Top Gardener:</strong> {{ top_user.user.username }} (Streak: {{ top_user.streak }})</p>
+{% endblock %}
