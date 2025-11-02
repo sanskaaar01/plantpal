@@ -1,0 +1,11 @@
+# 1. Open PowerShell
+# 2. Navigate to project
+cd C:\Users\bhosl\OneDrive\Desktop\plantpal_project
+
+# 3. Activate virtual environment
+.\venv\Scripts\activate
+
+# 4. Run server
+python manage.py runserver
+
+# 5. Open browser to http://localhost:8000/

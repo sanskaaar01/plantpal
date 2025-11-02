@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantPal - Your Garden Awaits</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        body.day-mode {
+            --bg-gradient-start: #d1fae5;
+            --bg-gradient-mid: #a7f3d0;
+            --bg-gradient-end: #a5f3fc;
+            --sky-gradient-start: #7dd3fc;
+            --sky-gradient-mid: #bae6fd;
+            --sky-gradient-end: #d1fae5;
+            --text-primary: #064e3b;
+            --text-secondary: #047857;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --nav-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        body.night-mode {
+            --bg-gradient-start: #1e293b;
+            --bg-gradient-mid: #334155;
+            --bg-gradient-end: #475569;
+            --sky-gradient-start: #0f172a;
+            --sky-gradient-mid: #1e293b;
+            --sky-gradient-end: #334155;
+            --text-primary: #f0fdfa;
+            --text-secondary: #ccfbf1;
+            --card-bg: rgba(30, 41, 59, 0.95);
+            --nav-bg: rgba(30, 41, 59, 0.8);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.5); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-slow-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        @keyframes slide-down {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float-cloud {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes leaf-sway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @keyframes bloom {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes water-drop {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0); }
+        }
+
+        @keyframes coin-pop {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.5); }
+            100% { opacity: 0; transform: translateY(-50px) scale(0.5); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes moon-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.5); }
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes rain-fall {
+            0% { transform: translateY(-100px); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        @keyframes snow-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .login-screen {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #34d399;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .floating-leaf {
+            position: absolute;
+            opacity: 0.2;
+            animation: float 12s ease-in-out infinite;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 28rem;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+            animation: fade-in-up 0.6s ease-out;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            display: inline-block;
+            padding: 1rem;
+            background: #d1fae5;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            animation: bounce-slow 2s ease-in-out infinite;
+        }
+
+        .logo svg {
+            width: 48px;
+            height: 48px;
+            stroke: #059669;
+            animation: wiggle 2s ease-in-out infinite;
+        }
+
+        .app-title {
+            font-size: 2.25rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            animation: fade-in 0.8s ease-out;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-style: italic;
+            animation: fade-in 0.8s ease-out 0.2s backwards;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            background: #d1fae5;
+            border: 2px solid #a7f3d0;
+            outline: none;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            border-color: #34d399;
+            transform: scale(1.02);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(to right, #10b981, #14b8a6);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        .login-btn:hover {
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .login-footer {
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 1.5rem;
+            animation: fade-in 0.8s ease-out 0.4s backwards;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .navbar {
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            animation: slide-down 0.4s ease-out;
+        }
+
+        .nav-content {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-brand svg {
+            width: 32px;
+            height: 32px;
+            stroke: #059669;
+            animation: wiggle 2s ease-in-out infinite;
+        }
+
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-primary);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            background: transparent;
+            color: #059669;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: #d1fae5;
+            transform: scale(1.05);
+        }
+
+        .nav-btn.active {
+            background: #d1fae5;
+            color: #047857;
+            transform: scale(1.05);
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .theme-toggle {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(20deg);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            fill: white;
+        }
+
+        .garden-view {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, var(--sky-gradient-start), var(--sky-gradient-mid), var(--sky-gradient-end));
+            transition: background 0.5s ease;
+        }
+
+        .weather-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .weather-particle {
+            position: absolute;
+            opacity: 0.6;
+        }
+
+        .sun {
+            position: absolute;
+            top: 2rem;
+            right: 3rem;
+            width: 5rem;
+            height: 5rem;
+            background: #fde047;
+            border-radius: 50%;
+            box-shadow: 0 10px 40px rgba(253, 224, 71, 0.5);
+            animation: pulse 3s ease-in-out infinite;
+            transition: all 0.5s ease;
+        }
+
+        .night-mode .sun {
+            background: #f0f9ff;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+            animation: moon-glow 3s ease-in-out infinite;
+        }
+
+        .sun::before {
+            content: '';
+            position: absolute;
+            inset: 0.5rem;
+            background: #fef08a;
+            border-radius: 50%;
+        }
+
+        .night-mode .sun::before {
+            background: #e0f2fe;
+        }
+
+        .sun::after {
+            content: '';
+            position: absolute;
+            inset: 1rem;
+            background: #fef3c7;
+            border-radius: 50%;
+        }
+
+        .night-mode .sun::after {
+            background: #bae6fd;
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .night-mode .stars {
+            opacity: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.7;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: float-cloud 20s linear infinite;
+            transition: opacity 0.5s ease;
+        }
+
+        .night-mode .cloud {
+            opacity: 0.2;
+        }
+
+        .garden-ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 66.666%;
+            background: linear-gradient(to bottom, #4ade80, #22c55e, #16a34a);
+            transition: background 0.5s ease;
+        }
+
+        .night-mode .garden-ground {
+            background: linear-gradient(to bottom, #166534, #14532d, #052e16);
+        }
+
+        .garden-stats {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 2px solid #d1fae5;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .time-indicator {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 2px solid #bae6fd;
+            z-index: 10;
+        }
+
+        .time-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .time-value {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .weather-controls {
+            position: absolute;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .weather-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 1.5rem;
+        }
+
+        .weather-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .garden-plant {
+            position: absolute;
+            animation: fade-in 0.6s ease-out;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .garden-plant:hover {
+            transform: scale(1.1);
+        }
+
+        .plant-pot {
+            position: relative;
+        }
+
+        .pot-border {
+            position: absolute;
+            inset: -0.5rem;
+            border: 4px solid #92400e;
+            border-radius: 0.5rem;
+        }
+
+        .soil {
+            width: 8rem;
+            height: 6rem;
+            background: linear-gradient(135deg, #92400e, #78350f, #57534e);
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            transform: skewX(-12deg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plant-stem {
+            width: 0.5rem;
+            background: linear-gradient(to bottom, #16a34a, #15803d);
+            border-radius: 9999px;
+            margin: 0 auto;
+            animation: sway 3s ease-in-out infinite;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform-origin: bottom;
+        }
+
+        .plant-leaves {
+            position: relative;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .leaf-left {
+            left: -1rem;
+            top: 0;
+            animation: leaf-sway 2s ease-in-out infinite;
+        }
+
+        .leaf-right {
+            right: -1rem;
+            top: 0;
+            animation: leaf-sway 2s ease-in-out infinite reverse;
+            animation-delay: 0.3s;
+        }
+
+        .plant-flower {
+            position: absolute;
+            top: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bloom 1s ease-out, bounce-slow 2s ease-in-out infinite;
+        }
+
+        .petal {
+            position: absolute;
+            width: 1rem;
+            height: 1rem;
+            background: linear-gradient(135deg, #f472b6, #ec4899);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .flower-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.75rem;
+            height: 0.75rem;
+            background: linear-gradient(135deg, #fde047, #facc15);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .plant-tag {
+            position: absolute;
+            bottom: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, #fffbeb, #fef3c7);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 2px solid #fbbf24;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #78350f;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .growth-indicator {
+            position: absolute;
+            top: -3rem;
+            right: -1rem;
+            background: linear-gradient(135deg, #10b981, #14b8a6);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard {
+            padding: 2rem;
+            max-width: 80rem;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+            animation: fade-in-up 0.6s ease-out;
+        }
+
+        .dashboard-title {
+            font-size: 1.875rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid #fbbf24;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .stat-box:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-box-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-box-label {
+            color: #92400e;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-box-value {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: #78350f;
+        }
+
+        .plants-section {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            animation: fade-in-up 0.6s ease-out;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .plants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .plant-card {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #6ee7b7;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plant-card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            transform: translateY(-8px);
+        }
+
+        .plant-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .plant-name {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #064e3b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .plant-type {
+            font-size: 0.875rem;
+            color: #047857;
+        }
+
+        .plant-icon {
+            background: #d1fae5;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            animation: bounce-slow 2s ease-in-out infinite;
+        }
+
+        .plant-stage {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 0.25rem;
+        }
+
+        .stage-seed {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .stage-sprout {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .stage-growing {
+            background: #bae6fd;
+            color: #0c4a6e;
+        }
+
+        .stage-mature {
+            background: #fae8ff;
+            color: #701a75;
+        }
+
+        .progress-bar {
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .progress-label-text {
+            color: #047857;
+        }
+
+        .progress-label-value {
+            color: #064e3b;
+            font-weight: 500;
+        }
+
+        .progress-track {
+            width: 100%;
+            background: #6ee7b7;
+            border-radius: 9999px;
+            height: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #10b981, #14b8a6);
+            border-radius: 9999px;
+            transition: width 0.5s ease-out;
+        }
+
+        .plant-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .last-watered {
+            font-size: 0.75rem;
+            color: #047857;
+        }
+
+        .planted-date {
+            font-size: 0.75rem;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .water-btn, .rename-btn {
+            background: linear-gradient(to right, #3b82f6, #06b6d4);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .rename-btn {
+            background: linear-gradient(to right, #8b5cf6, #a855f7);
+        }
+
+        .water-btn:hover, .rename-btn:hover {
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+            transform: scale(1.1);
+        }
+
+        .water-btn:active, .rename-btn:active {
+            transform: scale(0.95);
+        }
+
+        .water-drop {
+            position: absolute;
+            pointer-events: none;
+            animation: water-drop 0.8s ease-out forwards;
+        }
+
+        .coin-pop {
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: #f59e0b;
+            font-weight: bold;
+            font-size: 1.25rem;
+            pointer-events: none;
+            animation: coin-pop 0.8s ease-out forwards;
+        }
+
+        .shop {
+            padding: 2rem;
+            max-width: 80rem;
+            margin: 0 auto;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .shop-item {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shop-item:hover {
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+            transform: translateY(-12px);
+        }
+
+        .shop-item-image {
+            width: 100%;
+            height: 8rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shop-item-name {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .shop-item-type {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .rarity {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .rarity.common { color: #6b7280; }
+        .rarity.uncommon { color: #059669; }
+        .rarity.rare { color: #2563eb; }
+        .rarity.legendary { color: #9333ea; animation: rainbow 3s linear infinite; }
+        .rarity.mythic { 
+            background: linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6, #06b6d4);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .buy-btn.enabled {
+            background: linear-gradient(to right, #f59e0b, #eab308);
+            color: white;
+        }
+
+        .buy-btn.enabled:hover {
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5);
+            transform: scale(1.05);
+        }
+
+        .buy-btn.enabled:active {
+            transform: scale(0.95);
+        }
+
+        .buy-btn.disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .leaderboard-section {
+            margin-bottom: 2rem;
+        }
+
+        .leaderboard-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid #d1fae5;
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #d1fae5;
+            color: #047857;
+            transform: scale(1.05);
+        }
+
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .leaderboard-item {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            border: 2px solid #fbbf24;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .leaderboard-item.rank-1 {
+            background: linear-gradient(135deg, #fef3c7, #fde047);
+            border-color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .leaderboard-item.rank-2 {
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            border-color: #9ca3af;
+        }
+
+        .leaderboard-item.rank-3 {
+            background: linear-gradient(135deg, #fed7aa, #fdba74);
+            border-color: #f97316;
+        }
+
+        .leaderboard-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #78350f;
+            width: 3rem;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .leaderboard-avatar {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .leaderboard-name {
+            font-size: 1.125rem;
+            color: #064e3b;
+        }
+
+        .leaderboard-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #f59e0b;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fade-in 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: fade-in-up 0.3s ease-out;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--text-primary);
+            transform: scale(1.2);
+        }
+
+        .modal-body {
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .emoji-picker {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .emoji-btn {
+            padding: 0.5rem;
+            border: 2px solid #d1fae5;
+            border-radius: 0.5rem;
+            background: transparent;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .emoji-btn:hover, .emoji-btn.selected {
+            background: #d1fae5;
+            transform: scale(1.2);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 2px solid #d1fae5;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary, .btn-secondary {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #10b981, #14b8a6);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .history-section {
+            margin-top: 2rem;
+        }
+
+        .history-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .history-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #d1fae5;
+        }
+
+        .history-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 2px solid #d1fae5;
+            animation: fade-in-up 0.3s ease-out;
+        }
+
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 1.25rem;
+            width: 1rem;
+            height: 1rem;
+            background: #10b981;
+            border-radius: 50%;
+            border: 3px solid var(--card-bg);
+        }
+
+        .history-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .history-action {
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .special-event-banner {
+            background: linear-gradient(135deg, #fae8ff, #f3e8ff);
+            border: 2px solid #d946ef;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .event-icon {
+            font-size: 3rem;
+            animation: bounce-slow 2s ease-in-out infinite;
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #701a75;
+            margin-bottom: 0.25rem;
+        }
+
+        .event-description {
+            color: #86198f;
+            font-size: 0.875rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        @media (max-width: 768px) {
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+
+            .nav-btn span {
+                display: none;
+            }
+
+            .stats-grid, .plants-grid, .shop-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .garden-stats, .time-indicator {
+                position: relative;
+                top: auto;
+                left: auto;
+                right: auto;
+                margin: 1rem;
+            }
+
+            .weather-controls {
+                bottom: 1rem;
+                right: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .weather-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body class="day-mode">
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <div class="logo-container">
+                <div class="logo">
+                    <svg class="icon" style="width: 48px; height: 48px;">
+                        <path d="M12 2v20M2 12l10-10 10 10" />
+                    </svg>
+                </div>
+                <h1 class="app-title">PlantPal</h1>
+                <p class="subtitle">Your garden awaits your return</p>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" placeholder="Username" id="username">
+            </div>
+            <div class="input-group">
+                <input type="password" placeholder="Password" id="password">
+            </div>
+            
+            <button class="login-btn" onclick="login()">Enter Your Sanctuary</button>
+            
+            <p class="login-footer">
+                Every visit nurtures your garden.<br>
+                Every moment here is growth.
+            </p>
+        </div>
+    </div>
+
+    <div id="mainApp" class="app-container hidden">
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="nav-brand">
+                    <svg class="icon" style="width: 32px; height: 32px;">
+                        <path d="M12 2v20M2 12l10-10 10 10" />
+                    </svg>
+                    <span class="brand-text">PlantPal</span>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="showView('garden')">
+                        <svg class="icon">
+                            <circle cx="12" cy="12" r="5" />
+                            <line x1="12" y1="1" x2="12" y2="3" />
+                        </svg>
+                        <span>Garden</span>
+                    </button>
+                    <button class="nav-btn" onclick="showView('dashboard')">
+                        <svg class="icon">
+                            <path d="M12 2v20M2 12l10-10 10 10" />
+                        </svg>
+                        <span>Manage</span>
+                    </button>
+                    <button class="nav-btn" onclick="showView('shop')">
+                        <svg class="icon">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                        </svg>
+                        <span>Shop</span>
+                    </button>
+                    <button class="nav-btn" onclick="showView('leaderboard')">
+                        <svg class="icon">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                        </svg>
+                        <span>Leaderboard</span>
+                    </button>
+                    <button class="nav-btn" onclick="showView('history')">
+                        <svg class="icon">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span>History</span>
+                    </button>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <svg class="icon" id="themeIcon">
+                            <circle cx="12" cy="12" r="5" />
+                            <line x1="12" y1="1" x2="12" y2="3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div id="gardenView" class="garden-view hidden">
+            <div class="sun"></div>
+            <div class="stars" id="starsContainer"></div>
+            <div class="weather-layer" id="weatherLayer"></div>
+            <div class="garden-ground"></div>
+            <div class="garden-stats">
+                <div class="stat-card">
+                    <p class="stat-label">
+                        <svg class="icon" style="width: 16px; height: 16px;">
+                            <path d="M12 2v20M2 12l10-10 10 10" />
+                        </svg>
+                        <span id="gardenUsername">Gardener</span>'s Garden
+                    </p>
+                    <p class="stat-value" id="gardenPlantCount">0 Plants</p>
+                </div>
+            </div>
+            <div class="time-indicator">
+                <p class="time-label">Time</p>
+                <p class="time-value" id="timeDisplay">
+                    <svg class="icon" style="animation: spin-slow 20s linear infinite;">
+                        <circle cx="12" cy="12" r="5" />
+                    </svg>
+                    <span id="timeText">Morning</span>
+                </p>
+            </div>
+            <div class="weather-controls">
+                <button class="weather-btn" onclick="setWeather('clear')" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);" title="Clear">☀️</button>
+                <button class="weather-btn" onclick="setWeather('rain')" style="background: linear-gradient(135deg, #3b82f6, #2563eb);" title="Rain">🌧️</button>
+                <button class="weather-btn" onclick="setWeather('snow')" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd);" title="Snow">❄️</button>
+            </div>
+            <div id="gardenPlantsContainer"></div>
+        </div>
+
+        <div id="dashboardView" class="dashboard hidden">
+            <div class="dashboard-header">
+                <h2 class="dashboard-title">Welcome back, <span id="dashboardUsername">Gardener</span></h2>
+                <p class="dashboard-subtitle">Your garden breathes with life</p>
+            </div>
+
+            <div id="specialEventContainer"></div>
+
+            <div class="stats-grid">
+                <div class="stat-box" style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border-color: #fbbf24;">
+                    <div class="stat-box-content">
+                        <div>
+                            <p class="stat-box-label" style="color: #92400e;">Coins Earned</p>
+                            <p class="stat-box-value" style="color: #78350f;" id="coinsDisplay">0</p>
+                        </div>
+                        <svg class="icon" style="width: 40px; height: 40px; stroke: #f59e0b; animation: spin-slow-reverse 20s linear infinite;">
+                            <circle cx="12" cy="12" r="10" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-box" style="background: linear-gradient(135deg, #fff7ed, #fed7aa); border-color: #fb923c;">
+                    <div class="stat-box-content">
+                        <div>
+                            <p class="stat-box-label" style="color: #9a3412;">Day Streak</p>
+                            <p class="stat-box-value" style="color: #7c2d12;" id="streakDisplay">0</p>
+                        </div>
+                        <svg class="icon" style="width: 40px; height: 40px; stroke: #f97316; animation: bounce-slow 2s ease-in-out infinite;">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-box" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #6ee7b7;">
+                    <div class="stat-box-content">
+                        <div>
+                            <p class="stat-box-label" style="color: #047857;">Plants Growing</p>
+                            <p class="stat-box-value" style="color: #064e3b;" id="plantCountDisplay">0</p>
+                        </div>
+                        <svg class="icon" style="width: 40px; height: 40px; stroke: #10b981; animation: wiggle 2s ease-in-out infinite;">
+                            <path d="M12 2v20M2 12l10-10 10 10" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-box" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-color: #60a5fa;">
+                    <div class="stat-box-content">
+                        <div>
+                            <p class="stat-box-label" style="color: #1e40af;">Total Watered</p>
+                            <p class="stat-box-value" style="color: #1e3a8a;" id="waterCountDisplay">0</p>
+                        </div>
+                        <svg class="icon" style="width: 40px; height: 40px; stroke: #3b82f6; animation: bounce-slow 2s ease-in-out infinite;">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plants-section">
+                <h3 class="section-title">Your Living Garden</h3>
+                <div class="plants-grid" id="plantsGrid"></div>
+            </div>
+        </div>
+
+        <div id="shopView" class="shop hidden">
+            <div class="dashboard-header">
+                <h2 class="dashboard-title">Plant Shop</h2>
+                <p class="dashboard-subtitle">Expand your sanctuary, one seed at a time</p>
+                <p style="color: #d97706; font-weight: 500; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg class="icon" style="stroke: #f59e0b; animation: spin-slow-reverse 20s linear infinite;">
+                        <circle cx="12" cy="12" r="10" />
+                    </svg>
+                    Your coins: <span id="shopCoinsDisplay">0</span>
+                </p>
+            </div>
+            <div id="specialEventShopContainer"></div>
+            <div class="shop-grid" id="shopGrid"></div>
+        </div>
+
+        <div id="leaderboardView" class="dashboard hidden">
+            <div class="dashboard-header">
+                <h2 class="dashboard-title">🏆 Leaderboard</h2>
+                <p class="dashboard-subtitle">See how you rank among fellow gardeners</p>
+            </div>
+
+            <div class="plants-section leaderboard-section">
+                <div class="leaderboard-filters">
+                    <button class="filter-btn active" onclick="filterLeaderboard('streak')">🔥 Weekly Streaks</button>
+                    <button class="filter-btn" onclick="filterLeaderboard('diversity')">🌈 Garden Diversity</button>
+                    <button class="filter-btn" onclick="filterLeaderboard('coins')">💰 Total Coins</button>
+                    <button class="filter-btn" onclick="filterLeaderboard('plants')">🌱 Most Plants</button>
+                </div>
+                <div class="leaderboard-list" id="leaderboardList"></div>
+            </div>
+        </div>
+
+        <div id="historyView" class="dashboard hidden">
+            <div class="dashboard-header">
+                <h2 class="dashboard-title">📜 Garden History</h2>
+                <p class="dashboard-subtitle">Your journey through time</p>
+            </div>
+
+            <div class="plants-section">
+                <h3 class="section-title">Recent Activity</h3>
+                <div class="history-timeline" id="historyTimeline"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="plantModal" class="modal hidden" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">Customize Plant</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Plant Name</label>
+                    <input type="text" id="plantNameInput" placeholder="Enter plant name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Choose an Emoji</label>
+                    <div class="emoji-picker" id="emojiPicker"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Plant Bio</label>
+                    <textarea id="plantBioInput" placeholder="Tell us about your plant..."></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="savePlantCustomization()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userData = {
+            username: 'Gardener',
+            coins: 50,
+            streak: 1,
+            plants: [],
+            waterCount: 0,
+            history: [],
+            lastLogin: Date.now()
+        };
+
+        const plantEmojis = ['🌱', '🌿', '🍀', '🌵', '🌴', '🌳', '🌲', '🎋', '🎍', '🌾', '🌺', '🌻', '🌷', '🌹', '🥀', '🌸'];
+
+        const shopItems = [
+            { id: 1, name: 'Lavender', type: 'Aromatic', cost: 50, rarity: 'common', emoji: '🌿' },
+            { id: 2, name: 'Bonsai', type: 'Miniature', cost: 120, rarity: 'rare', emoji: '🎋' },
+            { id: 3, name: 'Venus Flytrap', type: 'Carnivorous', cost: 200, rarity: 'legendary', emoji: '🪴' },
+            { id: 4, name: 'Orchid', type: 'Exotic', cost: 85, rarity: 'uncommon', emoji: '🌸' },
+            { id: 5, name: 'Rose', type: 'Flowering', cost: 75, rarity: 'uncommon', emoji: '🌹' },
+            { id: 6, name: 'Cactus', type: 'Desert', cost: 45, rarity: 'common', emoji: '🌵' },
+            { id: 7, name: 'Sunflower', type: 'Flowering', cost: 60, rarity: 'common', emoji: '🌻' },
+            { id: 8, name: 'Bamboo', type: 'Exotic', cost: 95, rarity: 'uncommon', emoji: '🎋' }
+        ];
+
+        let specialShopItems = [];
+        let currentView = 'dashboard';
+        let isDayMode = true;
+        let currentWeather = 'clear';
+        let selectedPlantId = null;
+        let leaderboardFilter = 'streak';
+
+        window.onload = async function() {
+            await loadUserData();
+            createFloatingElements();
+            createStars();
+            startGrowthTimer();
+            updateTimeOfDay();
+            checkSpecialEvents();
+            setInterval(updateTimeOfDay, 60000);
+            setInterval(checkSpecialEvents, 3600000);
+        };
+
+        async function loadUserData() {
+            try {
+                const result = await window.storage.get('plantpal-user-data');
+                if (result && result.value) {
+                    const savedData = JSON.parse(result.value);
+                    userData = { ...userData, ...savedData };
+                    
+                    const today = new Date().toDateString();
+                    const lastLoginDate = new Date(userData.lastLogin).toDateString();
+                    
+                    if (today !== lastLoginDate) {
+                        userData.streak += 1;
+                        userData.lastLogin = Date.now();
+                        addHistory('Logged in', `Day ${userData.streak} streak! 🔥`);
+                        await saveUserData();
+                    }
+                }
+            } catch (error) {
+                console.log('First time user or data not found');
+            }
+        }
+
+        async function saveUserData() {
+            try {
+                await window.storage.set('plantpal-user-data', JSON.stringify(userData));
+            } catch (error) {
+                console.error('Error saving data:', error);
+            }
+        }
+
+        async function updateLeaderboard() {
+            try {
+                await window.storage.set(`leaderboard-${userData.username}`, JSON.stringify({
+                    username: userData.username,
+                    streak: userData.streak,
+                    coins: userData.coins,
+                    plantCount: userData.plants.length,
+                    diversity: new Set(userData.plants.map(p => p.type)).size,
+                    timestamp: Date.now()
+                }), true);
+            } catch (error) {
+                console.error('Error updating leaderboard:', error);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const result = await window.storage.list('leaderboard-', true);
+                if (!result || !result.keys) return [];
+
+                const leaderboardData = [];
+                for (const key of result.keys) {
+                    try {
+                        const data = await window.storage.get(key, true);
+                        if (data && data.value) {
+                            leaderboardData.push(JSON.parse(data.value));
+                        }
+                    } catch (error) {
+                        console.error('Error loading leaderboard entry:', error);
+                    }
+                }
+
+                return leaderboardData.filter(entry => 
+                    Date.now() - entry.timestamp < 7 * 24 * 60 * 60 * 1000
+                );
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                return [];
+            }
+        }
+
+        function addHistory(action, details) {
+            userData.history.unshift({
+                action,
+                details,
+                timestamp: Date.now()
+            });
+            
+            if (userData.history.length > 50) {
+                userData.history = userData.history.slice(0, 50);
+            }
+        }
+
+        function createFloatingElements() {
+            const loginScreen = document.getElementById('loginScreen');
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                particle.style.animationDuration = (3 + Math.random() * 2) + 's';
+                loginScreen.appendChild(particle);
+            }
+
+            for (let i = 0; i < 12; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'floating-leaf';
+                leaf.innerHTML = `<svg class="icon" style="width: 40px; height: 40px; stroke: #059669; animation: spin-slow 20s linear infinite;">
+                    <path d="M12 2v20M2 12l10-10 10 10" />
+                </svg>`;
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.animationDelay = Math.random() * 5 + 's';
+                leaf.style.animationDuration = (8 + Math.random() * 4) + 's';
+                loginScreen.appendChild(leaf);
+            }
+        }
+
+        function createStars() {
+            const starsContainer = document.getElementById('starsContainer');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (2 + Math.random() * 2) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function toggleTheme() {
+            isDayMode = !isDayMode;
+            document.body.classList.toggle('day-mode', isDayMode);
+            document.body.classList.toggle('night-mode', !isDayMode);
+            
+            const themeIcon = document.getElementById('themeIcon');
+            const timeText = document.getElementById('timeText');
+            
+            if (isDayMode) {
+                themeIcon.innerHTML = '<circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" />';
+                timeText.textContent = 'Morning';
+            } else {
+                themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />';
+                timeText.textContent = 'Night';
+            }
+        }
+
+        function updateTimeOfDay() {
+            const hour = new Date().getHours();
+            const timeText = document.getElementById('timeText');
+            
+            if (!isDayMode) return;
+            
+            if (hour >= 5 && hour < 12) {
+                timeText.textContent = 'Morning';
+            } else if (hour >= 12 && hour < 17) {
+                timeText.textContent = 'Afternoon';
+            } else if (hour >= 17 && hour < 20) {
+                timeText.textContent = 'Evening';
+            } else {
+                timeText.textContent = 'Night';
+            }
+        }
+
+        function checkSpecialEvents() {
+            const now = new Date();
+            const month = now.getMonth();
+            const date = now.getDate();
+            const hour = now.getHours();
+            
+            const moonPhase = Math.floor((now.getDate() / 29.53) * 8);
+            
+            if (moonPhase === 4 && hour >= 20) {
+                specialShopItems = [
+                    { id: 100, name: 'Moonflower', type: 'Mystical', cost: 300, rarity: 'mythic', emoji: '🌙', special: true, expires: Date.now() + 3600000 }
+                ];
+                renderShop();
+            }
+            
+            if ((month === 11 && date >= 20) || (month === 0 && date <= 10)) {
+                specialShopItems.push(
+                    { id: 101, name: 'Winter Rose', type: 'Seasonal', cost: 150, rarity: 'legendary', emoji: '🌹', special: true }
+                );
+            }
+        }
+
+        function setWeather(weather) {
+            currentWeather = weather;
+            const weatherLayer = document.getElementById('weatherLayer');
+            weatherLayer.innerHTML = '';
+            
+            if (weather === 'rain') {
+                for (let i = 0; i < 50; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'weather-particle';
+                    drop.textContent = '💧';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.animationDelay = Math.random() * 2 + 's';
+                    drop.style.animation = 'rain-fall 1s linear infinite';
+                    weatherLayer.appendChild(drop);
+                }
+            } else if (weather === 'snow') {
+                for (let i = 0; i < 30; i++) {
+                    const flake = document.createElement('div');
+                    flake.className = 'weather-particle';
+                    flake.textContent = '❄️';
+                    flake.style.left = Math.random() * 100 + '%';
+                    flake.style.animationDelay = Math.random() * 3 + 's';
+                    flake.style.animation = 'snow-fall 3s linear infinite';
+                    weatherLayer.appendChild(flake);
+                }
+            }
+        }
+
+        function startGrowthTimer() {
+            setInterval(() => {
+                let updated = false;
+                userData.plants.forEach(plant => {
+                    const daysSincePlanted = (Date.now() - plant.plantedDate) / (1000 * 60 * 60 * 24);
+                    const targetGrowth = Math.min(100, Math.floor(daysSincePlanted * 25));
+                    
+                    if (plant.growth < targetGrowth) {
+                        plant.growth = Math.min(100, plant.growth + 1);
+                        updated = true;
+                    }
+                    
+                    const timeSinceWatered = Date.now() - (plant.lastWateredTime || plant.plantedDate);
+                    const hoursSinceWatered = timeSinceWatered / (1000 * 60 * 60);
+                    
+                    if (hoursSinceWatered > 24 && plant.health > 50) {
+                        plant.health = Math.max(50, plant.health - 0.5);
+                        updated = true;
+                    }
+                });
+                
+                if (updated) {
+                    saveUserData();
+                    if (currentView === 'dashboard') {
+                        renderDashboard();
+                    } else if (currentView === 'garden') {
+                        renderGardenView();
+                    }
+                }
+            }, 30000);
+        }
+
+        function getPlantStage(growth) {
+            if (growth < 25) return { name: 'Seed', class: 'stage-seed' };
+            if (growth < 50) return { name: 'Sprout', class: 'stage-sprout' };
+            if (growth < 75) return { name: 'Growing', class: 'stage-growing' };
+            return { name: 'Mature', class: 'stage-mature' };
+        }
+
+        function getDaysSincePlanted(plantedDate) {
+            const days = Math.floor((Date.now() - plantedDate) / (1000 * 60 * 60 * 24));
+            if (days === 0) return 'Today';
+            if (days === 1) return '1 day ago';
+            return `${days} days ago`;
+        }
+
+        function getTimeSince(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+            
+            userData.username = username;
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            await loadUserData();
+            showView('dashboard');
+        }
+
+        function showView(view) {
+            currentView = view;
+            
+            document.getElementById('gardenView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('shopView').classList.add('hidden');
+            document.getElementById('leaderboardView').classList.add('hidden');
+            document.getElementById('historyView').classList.add('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            const viewMap = {
+                'garden': [document.getElementById('gardenView'), 0],
+                'dashboard': [document.getElementById('dashboardView'), 1],
+                'shop': [document.getElementById('shopView'), 2],
+                'leaderboard': [document.getElementById('leaderboardView'), 3],
+                'history': [document.getElementById('historyView'), 4]
+            };
+
+            if (viewMap[view]) {
+                viewMap[view][0].classList.remove('hidden');
+                document.querySelectorAll('.nav-btn')[viewMap[view][1]].classList.add('active');
+            }
+
+            switch(view) {
+                case 'garden':
+                    renderGardenView();
+                    break;
+                case 'dashboard':
+                    renderDashboard();
+                    break;
+                case 'shop':
+                    renderShop();
+                    break;
+                case 'leaderboard':
+                    renderLeaderboard();
+                    break;
+                case 'history':
+                    renderHistory();
+                    break;
+            }
+        }
+
+        function renderGardenView() {
+            const container = document.getElementById('gardenPlantsContainer');
+            container.innerHTML = '';
+
+            document.getElementById('gardenUsername').textContent = userData.username;
+            document.getElementById('gardenPlantCount').textContent = userData.plants.length + ' Plants';
+
+            userData.plants.forEach((plant, idx) => {
+                const row = Math.floor(idx / 4);
+                const col = idx % 4;
+                
+                const plantDiv = document.createElement('div');
+                plantDiv.className = 'garden-plant';
+                plantDiv.style.left = (15 + col * 20) + '%';
+                plantDiv.style.bottom = (15 + row * 30) + '%';
+                plantDiv.style.animationDelay = (idx * 0.2) + 's';
+                plantDiv.style.zIndex = 10 - row;
+                plantDiv.onclick = () => openPlantModal(plant.id);
+
+                const stemHeight = plant.growth * 0.8;
+                const leavesBottom = plant.growth * 0.4;
+                const stage = getPlantStage(plant.growth);
+
+                let flowerHTML = '';
+                if (plant.health > 70 && plant.growth >= 75) {
+                    const colors = {
+                        'Herb': '#ec4899',
+                        'Tropical': '#f97316',
+                        'Flowering': '#9333ea',
+                        'Desert': '#f472b6',
+                        'Aromatic': '#8b5cf6',
+                        'Exotic': '#06b6d4',
+                        'Carnivorous': '#ef4444',
+                        'Miniature': '#10b981',
+                        'Seasonal': '#f59e0b',
+                        'Mystical': '#d946ef'
+                    };
+                    const color = colors[plant.type] || '#f472b6';
+                    
+                    flowerHTML = `
+                        <div class="plant-flower">
+                            <div style="position: relative; width: 2rem; height: 2rem;">
+                                ${[0,1,2,3,4,5].map(i => `
+                                    <div class="petal" style="
+                                        background: linear-gradient(135deg, ${color}, ${color}dd);
+                                        transform: rotate(${i * 60}deg) translateY(-0.5rem);
+                                        transform-origin: center;
+                                    "></div>
+                                `).join('')}
+                                <div class="flower-center"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                plantDiv.innerHTML = `
+                    <div class="plant-pot">
+                        ${plant.growth >= 50 ? `<div class="growth-indicator">${stage.name}</div>` : ''}
+                        <div class="pot-border"></div>
+                        <div class="soil"></div>
+                        <div style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);">
+                            <div style="animation: sway 3s ease-in-out infinite;">
+                                <div class="plant-stem" style="height: ${stemHeight}px;"></div>
+                                ${plant.growth >= 25 ? `
+                                    <div class="plant-leaves" style="bottom: ${leavesBottom}px;">
+                                        <div class="leaf leaf-left"></div>
+                                        <div class="leaf leaf-right"></div>
+                                        ${plant.growth >= 50 ? `
+                                            <div class="leaf leaf-left" style="top: -1rem; width: 1.5rem; height: 1.5rem;"></div>
+                                            <div class="leaf leaf-right" style="top: -1rem; width: 1.5rem; height: 1.5rem;"></div>
+                                        ` : ''}
+                                    </div>
+                                ` : ''}
+                                ${flowerHTML}
+                            </div>
+                        </div>
+                        <div class="plant-tag">
+                            ${plant.emoji || '🌱'}
+                            ${plant.name}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(plantDiv);
+            });
+
+            const gardenView = document.getElementById('gardenView');
+            const existingClouds = gardenView.querySelectorAll('.cloud');
+            existingClouds.forEach(cloud => cloud.remove());
+
+            for (let i = 0; i < 5; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.width = (80 + i * 20) + 'px';
+                cloud.style.height = (40 + i * 10) + 'px';
+                cloud.style.top = (8 + i * 12) + '%';
+                cloud.style.left = (10 + i * 18) + '%';
+                cloud.style.animationDuration = (15 + i * 5) + 's';
+                cloud.style.animationDelay = (i * -3) + 's';
+                gardenView.appendChild(cloud);
+            }
+        }
+
+        function renderDashboard() {
+            document.getElementById('dashboardUsername').textContent = userData.username;
+            document.getElementById('coinsDisplay').textContent = userData.coins;
+            document.getElementById('streakDisplay').textContent = userData.streak;
+            document.getElementById('plantCountDisplay').textContent = userData.plants.length;
+            document.getElementById('waterCountDisplay').textContent = userData.waterCount;
+
+            checkAndRenderSpecialEvent();
+
+            const plantsGrid = document.getElementById('plantsGrid');
+            plantsGrid.innerHTML = '';
+
+            if (userData.plants.length === 0) {
+                plantsGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🌱</div>
+                        <p style="font-size: 1.25rem; margin-bottom: 0.5rem;">Your garden is empty</p>
+                        <p>Visit the shop to plant your first seeds!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            userData.plants.forEach((plant, idx) => {
+                const card = document.createElement('div');
+                card.className = 'plant-card';
+                card.style.animationDelay = (idx * 0.1) + 's';
+                card.id = `plant-card-${plant.id}`;
+
+                const stage = getPlantStage(plant.growth);
+                const daysPlanted = getDaysSincePlanted(plant.plantedDate);
+
+                card.innerHTML = `
+                    <div class="plant-card-header">
+                        <div>
+                            <h4 class="plant-name">${plant.emoji || '🌱'} ${plant.name}</h4>
+                            <p class="plant-type">${plant.type}</p>
+                            ${plant.bio ? `<p style="font-size: 0.75rem; color: #047857; margin-top: 0.25rem; font-style: italic;">"${plant.bio}"</p>` : ''}
+                            <span class="plant-stage ${stage.class}">${stage.name}</span>
+                        </div>
+                        <div class="plant-icon">
+                            <svg class="icon" style="width: 24px; height: 24px; stroke: #059669;">
+                                <path d="M12 2v20M2 12l10-10 10 10" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <p class="planted-date">🌱 Planted: ${daysPlanted}</p>
+
+                    <div class="progress-bar">
+                        <div class="progress-label">
+                            <span class="progress-label-text">Health</span>
+                            <span class="progress-label-value">${Math.floor(plant.health)}%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: ${plant.health}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-label">
+                            <span class="progress-label-text">Growth</span>
+                            <span class="progress-label-value">${plant.growth}%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: ${plant.growth}%; background: linear-gradient(to right, #14b8a6, #06b6d4);"></div>
+                        </div>
+                    </div>
+
+                    <div class="plant-card-footer">
+                        <p class="last-watered">💧 ${plant.lastWatered}</p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="rename-btn" onclick="openPlantModal(${plant.id})">
+                                <svg class="icon" style="width: 16px; height: 16px;">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg>
+                            </button>
+                            <button class="water-btn" onclick="waterPlant(${plant.id})">
+                                <svg class="icon" style="width: 16px; height: 16px; animation: bounce-slow 2s ease-in-out infinite;">
+                                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                                </svg>
+                                Water
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                plantsGrid.appendChild(card);
+            });
+        }
+
+        function checkAndRenderSpecialEvent() {
+            const container = document.getElementById('specialEventContainer');
+            const now = new Date();
+            const moonPhase = Math.floor((now.getDate() / 29.53) * 8);
+            
+            if (moonPhase === 4 && now.getHours() >= 20) {
+                container.innerHTML = `
+                    <div class="special-event-banner">
+                        <div class="event-icon">🌙</div>
+                        <div class="event-info">
+                            <div class="event-title">Full Moon Special!</div>
+                            <div class="event-description">Rare Moonflower available in shop for limited time!</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        async function waterPlant(plantId) {
+            const plantCard = document.getElementById(`plant-card-${plantId}`);
+            if (!plantCard) return;
+
+            for (let i = 0; i < 8; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'water-drop';
+                const x = Math.random() * 60 - 30;
+                const y = Math.random() * 60 - 30;
+                drop.style.setProperty('--x', x + 'px');
+                drop.style.setProperty('--y', y + 'px');
+                drop.style.animationDelay = (i * 0.05) + 's';
+                drop.style.left = '50%';
+                drop.style.top = '50%';
+                drop.innerHTML = `<svg class="icon" style="width: 20px; height: 20px; stroke: #3b82f6;">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                </svg>`;
+                plantCard.appendChild(drop);
+            }
+
+            const coinPop = document.createElement('div');
+            coinPop.className = 'coin-pop';
+            coinPop.textContent = '+5';
+            plantCard.appendChild(coinPop);
+
+            userData.coins += 5;
+            userData.waterCount += 1;
+            const plant = userData.plants.find(p => p.id === plantId);
+            if (plant) {
+                plant.health = Math.min(100, plant.health + 5);
+                plant.lastWatered = 'just now';
+                plant.lastWateredTime = Date.now();
+            }
+
+            addHistory('Watered plant', `${plant.emoji || '🌱'} ${plant.name} - Earned 5 coins`);
+            await saveUserData();
+            await updateLeaderboard();
+            updateAllDisplays();
+
+            setTimeout(() => {
+                plantCard.querySelectorAll('.water-drop, .coin-pop').forEach(el => el.remove());
+            }, 1000);
+        }
+
+        function renderShop() {
+            document.getElementById('shopCoinsDisplay').textContent = userData.coins;
+
+            const specialContainer = document.getElementById('specialEventShopContainer');
+            if (specialShopItems.length > 0) {
+                specialContainer.innerHTML = `
+                    <div class="special-event-banner" style="margin-bottom: 2rem;">
+                        <div class="event-icon">✨</div>
+                        <div class="event-info">
+                            <div class="event-title">Special Items Available!</div>
+                            <div class="event-description">Limited time mystical plants - don't miss out!</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                specialContainer.innerHTML = '';
+            }
+
+            const shopGrid = document.getElementById('shopGrid');
+            shopGrid.innerHTML = '';
+
+            const allItems = [...specialShopItems, ...shopItems];
+
+            allItems.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'shop-item';
+                card.style.animationDelay = (idx * 0.1) + 's';
+
+                const rarityColors = {
+                    mythic: 'linear-gradient(135deg, #fae8ff, #f3e8ff, #e0e7ff, #dbeafe)',
+                    legendary: 'linear-gradient(135deg, #fae8ff, #f3e8ff)',
+                    rare: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
+                    uncommon: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
+                    common: 'linear-gradient(135deg, #f3f4f6, #e5e7eb)'
+                };
+
+                const canBuy = userData.coins >= item.cost;
+
+                card.innerHTML = `
+                    <div class="shop-item-image" style="background: ${rarityColors[item.rarity]};">
+                        <div style="font-size: 3rem;">${item.emoji}</div>
+                    </div>
+                    <h3 class="shop-item-name">${item.name}</h3>
+                    <p class="shop-item-type">${item.type}</p>
+                    <p class="rarity ${item.rarity}">${item.rarity}</p>
+                    ${item.special ? '<p style="font-size: 0.75rem; color: #d946ef; font-weight: bold;">⏰ LIMITED TIME</p>' : ''}
+                    <button class="buy-btn ${canBuy ? 'enabled' : 'disabled'}" 
+                            onclick="${canBuy ? `purchasePlant(${item.id}, ${item.special || false})` : ''}"
+                            ${!canBuy ? 'disabled' : ''}>
+                        <svg class="icon" style="width: 16px; height: 16px;">
+                            <circle cx="12" cy="12" r="10" />
+                        </svg>
+                        Buy for ${item.cost} coins
+                    </button>
+                `;
+
+                shopGrid.appendChild(card);
+            });
+        }
+
+        async function purchasePlant(itemId, isSpecial = false) {
+            const items = isSpecial ? specialShopItems : shopItems;
+            const item = items.find(i => i.id === itemId);
+            if (!item || userData.coins < item.cost) {
+                alert(`💰 You need ${item.cost - userData.coins} more coins!`);
+                return;
+            }
+
+            const newPlant = {
+                id: Date.now(),
+                name: item.name,
+                type: item.type,
+                emoji: item.emoji,
+                health: 100,
+                lastWatered: 'just now',
+                lastWateredTime: Date.now(),
+                growth: 10,
+                plantedDate: Date.now(),
+                bio: ''
+            };
+
+            userData.coins -= item.cost;
+            userData.plants.push(newPlant);
+
+            addHistory('Purchased plant', `${item.emoji} ${item.name} for ${item.cost} coins`);
+            await saveUserData();
+            await updateLeaderboard();
+
+            alert(`🌱 ${item.name} added to your garden! It will grow over the next 4 days.`);
+            updateAllDisplays();
+            renderShop();
+        }
+
+        async function renderLeaderboard() {
+            const leaderboardData = await loadLeaderboard();
+            
+            let sortedData = [];
+            switch(leaderboardFilter) {
+                case 'streak':
+                    sortedData = leaderboardData.sort((a, b) => b.streak - a.streak);
+                    break;
+                case 'diversity':
+                    sortedData = leaderboardData.sort((a, b) => b.diversity - a.diversity);
+                    break;
+                case 'coins':
+                    sortedData = leaderboardData.sort((a, b) => b.coins - a.coins);
+                    break;
+                case 'plants':
+                    sortedData = leaderboardData.sort((a, b) => b.plantCount - a.plantCount);
+                    break;
+            }
+
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = '';
+
+            if (sortedData.length === 0) {
+                leaderboardList.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🏆</div>
+                        <p style="font-size: 1.25rem; margin-bottom: 0.5rem;">No rankings yet</p>
+                        <p>Be the first to make the leaderboard!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            sortedData.forEach((entry, idx) => {
+                const item = document.createElement('div');
+                item.className = `leaderboard-item ${idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : ''}`;
+                item.style.animationDelay = (idx * 0.05) + 's';
+
+                const rankEmoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+                
+                let valueDisplay = '';
+                switch(leaderboardFilter) {
+                    case 'streak':
+                        valueDisplay = `${entry.streak} 🔥`;
+                        break;
+                    case 'diversity':
+                        valueDisplay = `${entry.diversity} 🌈`;
+                        break;
+                    case 'coins':
+                        valueDisplay = `${entry.coins} 💰`;
+                        break;
+                    case 'plants':
+                        valueDisplay = `${entry.plantCount} 🌱`;
+                        break;
+                }
+
+                const isCurrentUser = entry.username === userData.username;
+
+                item.innerHTML = `
+                    <div class="leaderboard-rank">${rankEmoji}</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-avatar">👤</div>
+                        <div class="leaderboard-name">${entry.username}${isCurrentUser ? ' (You)' : ''}</div>
+                    </div>
+                    <div class="leaderboard-value">${valueDisplay}</div>
+                `;
+
+                leaderboardList.appendChild(item);
+            });
+        }
+
+        function filterLeaderboard(filter) {
+            leaderboardFilter = filter;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderLeaderboard();
+        }
+
+        function renderHistory() {
+            const historyTimeline = document.getElementById('historyTimeline');
+            historyTimeline.innerHTML = '';
+
+            if (userData.history.length === 0) {
+                historyTimeline.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+                        <p style="font-size: 1.25rem; margin-bottom: 0.5rem;">No history yet</p>
+                        <p>Start gardening to build your story!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            userData.history.forEach((entry, idx) => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.style.animationDelay = (idx * 0.05) + 's';
+
+                const timeAgo = getTimeSince(entry.timestamp);
+                const date = new Date(entry.timestamp);
+                const formattedDate = date.toLocaleString();
+
+                item.innerHTML = `
+                    <div class="history-time" title="${formattedDate}">${timeAgo}</div>
+                    <div class="history-action"><strong>${entry.action}</strong></div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">${entry.details}</div>
+                `;
+
+                historyTimeline.appendChild(item);
+            });
+        }
+
+        function openPlantModal(plantId) {
+            selectedPlantId = plantId;
+            const plant = userData.plants.find(p => p.id === plantId);
+            if (!plant) return;
+
+            document.getElementById('plantNameInput').value = plant.name;
+            document.getElementById('plantBioInput').value = plant.bio || '';
+
+            const emojiPicker = document.getElementById('emojiPicker');
+            emojiPicker.innerHTML = '';
+            
+            plantEmojis.forEach(emoji => {
+                const btn = document.createElement('button');
+                btn.className = 'emoji-btn';
+                btn.textContent = emoji;
+                if (plant.emoji === emoji) {
+                    btn.classList.add('selected');
+                }
+                btn.onclick = () => {
+                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                };
+                emojiPicker.appendChild(btn);
+            });
+
+            document.getElementById('plantModal').classList.remove('hidden');
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'plantModal') {
+                document.getElementById('plantModal').classList.add('hidden');
+                selectedPlantId = null;
+            }
+        }
+
+        async function savePlantCustomization() {
+            if (!selectedPlantId) return;
+
+            const plant = userData.plants.find(p => p.id === selectedPlantId);
+            if (!plant) return;
+
+            const newName = document.getElementById('plantNameInput').value.trim();
+            const newBio = document.getElementById('plantBioInput').value.trim();
+            const selectedEmoji = document.querySelector('.emoji-btn.selected');
+
+            if (!newName) {
+                alert('Please enter a plant name');
+                return;
+            }
+
+            const oldName = plant.name;
+            plant.name = newName;
+            plant.bio = newBio;
+            if (selectedEmoji) {
+                plant.emoji = selectedEmoji.textContent;
+            }
+
+            addHistory('Customized plant', `Renamed "${oldName}" to "${newName}"`);
+            await saveUserData();
+
+            closeModal();
+            updateAllDisplays();
+        }
+
+        function updateAllDisplays() {
+            document.getElementById('coinsDisplay').textContent = userData.coins;
+            document.getElementById('shopCoinsDisplay').textContent = userData.coins;
+            document.getElementById('streakDisplay').textContent = userData.streak;
+            document.getElementById('plantCountDisplay').textContent = userData.plants.length;
+            document.getElementById('waterCountDisplay').textContent = userData.waterCount;
+            document.getElementById('gardenPlantCount').textContent = userData.plants.length + ' Plants';
+
+            if (currentView === 'dashboard') {
+                renderDashboard();
+            } else if (currentView === 'garden') {
+                renderGardenView();
+            } else if (currentView === 'history') {
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>
